@@ -1,0 +1,13 @@
+
+{
+  "name": "CV Pro Kin",
+  "short_name": "CV Pro Kin",
+  "description": "Application de création et de gestion de CV",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0b0b",
+  "theme_color": "#d4af37",
+  "icons": []
+}
