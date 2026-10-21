@@ -364,5 +364,19 @@ document.getElementById("sauver").addEventListener("click", enregistrer);
 
 afficherListe();
 </script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(function (registration) {
+        console.log("CV Pro Kin : service worker enregistré.");
+      })
+      .catch(function (error) {
+        console.error("Erreur service worker :", error);
+      });
+  });
+}
+</script>
+
 </body>
 </html>
