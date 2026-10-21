@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CV Pro Kin</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 16px 12px;
+  background: #0b0b0b;
+  color: white;
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.carte {
+  max-width: 480px;
+  margin: 10px auto;
+  padding: 20px 15px;
+  background: #141414;
+  border: 1px solid #d4af37;
+  border-radius: 14px;
+}
+
+h1, h2 { color: #d4af37; }
+h1, .intro { text-align: center; }
+.intro { color: #ddd; }
+
+label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #555;
+  border-radius: 7px;
+  background: #222;
+  color: white;
+  font: inherit;
+  font-size: 16px;
+}
+
+textarea { min-height: 80px; }
+
+button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #d4af37;
+  color: #111;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+button.secondary {
+  background: #292929;
+  color: #fff;
+  border: 1px solid #d4af37;
+}
+
+#resultat {
+  display: none;
+  margin-top: 22px;
+  padding: 22px 17px;
+  background: white;
+  color: #263244;
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+
+#resultat h2 {
+  color: #17365d;
+  margin-bottom: 2px;
+}
+
+#resultat h3 {
+  color: #17365d;
+  font-size: 14px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #d4af37;
+  padding-bottom: 5px;
+  margin-top: 20px;
+}
+
+#resultat p { white-space: pre-wrap; }
+
+#rPoste {
+  color: #9a7615;
+  font-weight: bold;
+}
+
+#message, #messageListe {
+  color: #d4af37;
+  overflow-wrap: anywhere;
+}
+
+.cv-enregistre {
+  padding: 12px;
+  margin-top: 10px;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+
+.cv-enregistre button { margin-top: 7px; }
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+
+  body { padding: 0; background: white; color: #222; }
+
+  .carte {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: white;
+  }
+
+  .carte > h1,
+  .carte > .intro,
+  .carte > h2,
+  #formCV,
+  #message,
+  #mesCV,
+  #resultat > button {
+    display: none !important;
+  }
+
+  #resultat {
+    display: block !important;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+
+  #resultat h2, #resultat h3 {
+    break-after: avoid;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="carte">
+  <h1>CV Pro Kin</h1>
+  <p class="intro">Crée et conserve tes CV professionnels.</p>
+
+  <h2>Informations du CV</h2>
+
+  <form id="formCV">
+    <label for="nom">Nom complet *</label>
+    <input id="nom" required placeholder="Jean Kabeya">
+
+    <label for="poste">Poste recherché</label>
+    <input id="poste" placeholder="Assistant informatique">
+
+    <label for="email">Adresse e-mail</label>
+    <input id="email" type="email" placeholder="nom@email.com">
+
+    <label for="telephone">Téléphone</label>
+    <input id="telephone" type="tel" placeholder="+243...">
+
+    <label for="adresse">Adresse</label>
+    <input id="adresse" placeholder="Kinshasa">
+
+    <label for="formation">Formation</label>
+    <textarea id="formation" placeholder="Diplôme, établissement, année"></textarea>
+
+    <label for="experience">Expériences professionnelles</label>
+    <textarea id="experience" placeholder="Poste, entreprise, missions"></textarea>
+
+    <label for="competences">Compétences</label>
+    <textarea id="competences" placeholder="HTML, Word, Excel"></textarea>
+
+    <label for="langues">Langues</label>
+    <input id="langues" placeholder="Français, anglais">
+
+    <button type="submit">Générer mon CV</button>
+  </form>
+
+  <p id="message" role="status"></p>
+
+  <section id="resultat">
+    <h2 id="rNom"></h2>
+    <p id="rPoste"></p>
+    <p id="rContact"></p>
+
+    <h3>Formation</h3>
+    <p id="rFormation"></p>
+
+    <h3>Expériences professionnelles</h3>
+    <p id="rExperience"></p>
+
+    <h3>Compétences</h3>
+    <p id="rCompetences"></p>
+
+    <h3>Langues</h3>
+    <p id="rLangues"></p>
+
+    <button type="button" id="sauver">Enregistrer ce CV</button>
+    <button type="button" class="secondary" onclick="window.print()">
+      Imprimer ou enregistrer en PDF
+    </button>
+  </section>
+
+  <section id="mesCV">
+    <h2>Mes CV enregistrés</h2>
+    <p id="messageListe"></p>
+    <div id="listeCV"></div>
+  </section>
+</div>
+
+<script>
+const form = document.getElementById("formCV");
+const champs = [
+  "nom", "poste", "email", "telephone", "adresse",
+  "formation", "experience", "competences", "langues"
+];
+
+const cle = "cvProKin_v1";
+let cvActuel = null;
+
+function lireCV() {
+  return champs.reduce((objet, id) => {
+    objet[id] = document.getElementById(id).value.trim();
+    return objet;
+  }, {});
+}
+
+function afficher(id, texte) {
+  document.getElementById(id).textContent =
+    texte || "Non renseigné";
+}
+
+function generer(cv) {
+  afficher("rNom", cv.nom);
+  afficher("rPoste", cv.poste);
+  afficher("rContact", [
+    cv.email, cv.telephone, cv.adresse
+  ].filter(Boolean).join(" | "));
+
+  afficher("rFormation", cv.formation);
+  afficher("rExperience", cv.experience);
+  afficher("rCompetences", cv.competences);
+  afficher("rLangues", cv.langues);
+
+  document.getElementById("resultat").style.display = "block";
+  cvActuel = cv;
+}
+
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+  generer(lireCV());
+  document.getElementById("message").textContent =
+    "CV généré. Tu peux maintenant l'enregistrer.";
+});
+
+function lireSauvegardes() {
+  try {
+    const donnees = JSON.parse(localStorage.getItem(cle) || "[]");
+    return Array.isArray(donnees) ? donnees : [];
+  } catch (erreur) {
+    return [];
+  }
+}
+
+function enregistrer() {
+  if (!cvActuel) return;
+
+  try {
+    const liste = lireSauvegardes();
+    const id = cvActuel.id || (
+      Date.now().toString() + Math.random().toString(16).slice(2)
+    );
+
+    const cv = {
+      ...cvActuel,
+      id: id,
+      date: new Date().toLocaleString("fr-FR")
+    };
+
+    const index = liste.findIndex(item => item.id === id);
+
+    if (index >= 0) {
+      liste[index] = cv;
+    } else {
+      liste.push(cv);
+    }
+
+    localStorage.setItem(cle, JSON.stringify(liste));
+    cvActuel = cv;
+
+    document.getElementById("message").textContent =
+      "CV enregistré sur cet appareil.";
+    afficherListe();
+  } catch (erreur) {
+    document.getElementById("message").textContent =
+      "Sauvegarde impossible dans cet aperçu. Essaie dans un navigateur normal.";
+  }
+}
+
+function afficherListe() {
+  const conteneur = document.getElementById("listeCV");
+  conteneur.replaceChildren();
+
+  const liste = lireSauvegardes();
+  document.getElementById("messageListe").textContent =
+    liste.length ? liste.length + " CV enregistré(s)." :
+    "Aucun CV enregistré pour le moment.";
+
+  liste.forEach(cv => {
+    const carte = document.createElement("div");
+    carte.className = "cv-enregistre";
+
+    const titre = document.createElement("strong");
+    titre.textContent = cv.nom || "CV sans nom";
+
+    const date = document.createElement("p");
+    date.textContent = cv.date || "";
+
+    const ouvrir = document.createElement("button");
+    ouvrir.textContent = "Ouvrir ce CV";
+    ouvrir.onclick = () => {
+      champs.forEach(id => {
+        document.getElementById(id).value = cv[id] || "";
+      });
+      cvActuel = cv;
+      generer(cv);
+      document.getElementById("message").textContent =
+        "CV chargé dans le formulaire.";
+      window.scrollTo(0, 0);
+    };
+
+    const supprimer = document.createElement("button");
+    supprimer.textContent = "Supprimer";
+    supprimer.className = "secondary";
+    supprimer.onclick = () => {
+      if (!confirm("Supprimer ce CV enregistré ?")) return;
+      const nouvelleListe = lireSauvegardes()
+        .filter(item => item.id !== cv.id);
+      localStorage.setItem(cle, JSON.stringify(nouvelleListe));
+      afficherListe();
+    };
+
+    carte.append(titre, date, ouvrir, supprimer);
+    conteneur.appendChild(carte);
+  });
+}
+
+document.getElementById("sauver").addEventListener("click", enregistrer);
+
+afficherListe();
+</script>
+</body>
+</html>
